@@ -87,6 +87,7 @@ export const asyncHandler = <T, S extends ValidationSchema | undefined>(
             // Ensure database connection
             await connectDB();
 
+            // TODO: Implement input sanitization, rate limiting, and authentication as needed
             const validatedData = await validateRequest(req, schema, context?.params);
             const result = await handler(req, context, validatedData);
 
