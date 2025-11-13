@@ -10,6 +10,10 @@ export const UserSchema = z.object({
     password: z.string().min(6, "Password must be at least 6 characters").optional(),
     profileImageUrl: z.string("Invalid URL format").optional(),
 
+    isVerified: z.boolean().default(false),
+    otp: z.string().optional(),
+    otpExpiry: z.date().optional(),
+
     educationLevel: z.enum(['High School', 'Associate', 'Bachelor', 'Master', 'PhD', 'Other']).optional(),
 
     //TODO: Decided by AI later by parsing CV
@@ -27,3 +31,4 @@ export const UserSchema = z.object({
 });
 
 export type User = z.infer<typeof UserSchema>;
+export type SafeUser = Omit<User, 'password' | 'otp' | 'otpExpiry' | 'googleId'>;
