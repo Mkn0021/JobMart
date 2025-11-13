@@ -32,4 +32,9 @@ export interface ValidationSchema {
     params?: z.ZodSchema;
 }
 
-export type ValidateResult<T extends ValidationSchema | undefined> = T extends ValidationSchema ? z.infer<T> : Record<string, never>;
+export type InferValidatedData<T extends ValidationSchema | undefined> =
+    T extends ValidationSchema ? {
+        query: T['query'] extends z.ZodSchema ? z.infer<T['query']> : undefined;
+        params: T['params'] extends z.ZodSchema ? z.infer<T['params']> : undefined;
+        body: T['body'] extends z.ZodSchema ? z.infer<T['body']> : undefined;
+    } : {};
