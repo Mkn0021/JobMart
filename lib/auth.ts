@@ -4,11 +4,23 @@ import { Session } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import { NextAuthOptions } from 'next-auth';
 import type { SafeUser } from '@/types/user.type';
+import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 export const authOptions: NextAuthOptions = {
     secret: env.NEXTAUTH_SECRET,
     providers: [
+        GoogleProvider({
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+            authorization: {
+                params: {
+                    prompt: 'consent',
+                    access_type: 'offline',
+                    response_type: 'code'
+                }
+            }
+        }),
         CredentialsProvider({
             name: 'credentials',
             credentials: {
@@ -38,7 +50,7 @@ export const authOptions: NextAuthOptions = {
                     return result.data as SafeUser;
                 } catch (error) {
                     if (error instanceof APIError) {
-                        return null; // NextAuth expects null for auth failures
+                        return null;
                     }
                     throw APIError.internal('Authentication failed');
                 }
@@ -57,7 +69,39 @@ export const authOptions: NextAuthOptions = {
         error: '/signin',
     },
     callbacks: {
-        async jwt({ token, user }) {
+        async signIn({ user, account }) {
+            if (account?.provider === 'google') {
+                try {
+                    const response = await fetch(`${env.NEXTAUTH_URL}/api/auth/google`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: user.email,
+                            name: user.name,
+                            profileImageUrl: user.image,
+                            googleId: account.providerAccountId,
+                        })
+                    });
+
+                    if (!response.ok) {
+                        return false;
+                    }
+
+                    const result = await response.json();
+                    user.id = result.data.id;
+                    user.isVerified = result.data.isVerified;
+                    user.profileImageUrl = result.data.profileImageUrl;
+                    user.educationLevel = result.data.educationLevel;
+
+                    return true;
+                } catch (error) {
+                    console.error('Google sign-in error:', error);
+                    return false;
+                }
+            }
+            return true;
+        },
+        async jwt({ token, user, account }) {
             if (user) {
                 token.user = {
                     id: user.id,
@@ -68,6 +112,11 @@ export const authOptions: NextAuthOptions = {
                     educationLevel: user.educationLevel,
                 }
             }
+
+            if (account) {
+                token.provider = account.provider;
+            }
+
             return token;
         },
         async session({ session, token }: { session: Session; token: JWT }): Promise<Session> {

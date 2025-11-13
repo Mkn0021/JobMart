@@ -8,4 +8,14 @@ export const LoginSchema = {
     }),
 } as const;
 
+export const GoogleAuthSchema = {
+    body: z.object({
+        name: UserSchema.shape.name,
+        email: UserSchema.shape.email,
+        profileImageUrl: UserSchema.shape.profileImageUrl.optional(),
+        googleId: UserSchema.shape.googleId.unwrap(),
+    }),
+} as const;
+
 export type LoginInput = z.infer<typeof LoginSchema>;
+export type GoogleAuthInput = z.infer<typeof GoogleAuthSchema>;

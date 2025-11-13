@@ -18,6 +18,8 @@ const UserSchema: Schema<IUser> = new Schema({
     otp: { type: String },
     otpExpiry: { type: Date },
 
+    googleId: { type: String, required: false, unique: true },
+
     educationLevel: { type: String, enum: ['High School', 'Associate', 'Bachelor', 'Master', 'PhD', 'Other'], required: false },
 
     experienceLevel: { type: String, enum: ['Fresher', 'Junior', 'Mid', 'Senior'], default: 'Fresher' },

@@ -14,6 +14,8 @@ export const UserSchema = z.object({
     otp: z.string().optional(),
     otpExpiry: z.date().optional(),
 
+    googleId: z.string().optional(),
+
     educationLevel: z.enum(['High School', 'Associate', 'Bachelor', 'Master', 'PhD', 'Other']).optional(),
 
     //TODO: Decided by AI later by parsing CV
