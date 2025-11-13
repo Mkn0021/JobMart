@@ -5,7 +5,7 @@ import { errorHandler } from "@/middlewares/error-handler";
 import { validateRequest } from '@/middlewares/validate-request';
 import type {
     ErrorResponse, HandlerResult,
-    SuccessResponse, ValidateResult, ValidationSchema
+    InferValidatedData, SuccessResponse, ValidationSchema
 } from "@/types/api.type";
 
 export const apiResponse = {
@@ -78,7 +78,7 @@ export const asyncHandler = <T, S extends ValidationSchema | undefined>(
     handler: (
         req: NextRequest,
         context: { params?: Record<string, string> },
-        validatedData: ValidateResult<S>
+        validatedData: InferValidatedData<S>
     ) => Promise<HandlerResult<T>>,
     schema?: S
 ) => {
@@ -89,7 +89,7 @@ export const asyncHandler = <T, S extends ValidationSchema | undefined>(
 
             // TODO: Implement input sanitization, rate limiting, and authentication as needed
             const validatedData = await validateRequest(req, schema, context?.params);
-            const result = await handler(req, context, validatedData);
+            const result = await handler(req, context, validatedData as InferValidatedData<S>);
 
             return apiResponse.success(
                 result.data ?? null,
