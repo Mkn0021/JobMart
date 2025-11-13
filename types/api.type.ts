@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export interface SuccessResponse<T> {
     success: true;
     data: T;
@@ -19,8 +21,15 @@ export interface HandlerResult<T> {
     headers?: Record<string, string>;
 }
 
-
 export interface MongooseErrorDetails {
     statusCode: number;
     message: string;
 }
+
+export interface ValidationSchema {
+    body?: z.ZodSchema;
+    query?: z.ZodSchema;
+    params?: z.ZodSchema;
+}
+
+export type ValidateResult<T extends ValidationSchema | undefined> = T extends ValidationSchema ? z.infer<T> : Record<string, never>;

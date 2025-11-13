@@ -2,7 +2,11 @@ import APIError from "./error";
 import connectDB from "@/config/database";
 import { NextRequest, NextResponse } from "next/server";
 import { errorHandler } from "@/middlewares/error-handler";
-import type { ErrorResponse, HandlerResult, SuccessResponse } from "@/types/api.type";
+import { validateRequest } from '@/middlewares/validate-request';
+import type {
+    ErrorResponse, HandlerResult,
+    SuccessResponse, ValidateResult, ValidationSchema
+} from "@/types/api.type";
 
 export const apiResponse = {
     success: <T>(
@@ -70,15 +74,21 @@ export const apiResponse = {
     },
 };
 
-export const asyncHandler = <T>(
-    handler: (req: NextRequest) => Promise<HandlerResult<T>>
+export const asyncHandler = <T, S extends ValidationSchema | undefined>(
+    handler: (
+        req: NextRequest,
+        context: { params?: Record<string, string> },
+        validatedData: ValidateResult<S>
+    ) => Promise<HandlerResult<T>>,
+    schema?: S
 ) => {
-    return async (req: NextRequest) => {
+    return async (req: NextRequest, context: { params?: Record<string, string> }) => {
         try {
             // Ensure database connection
             await connectDB();
 
-            const result = await handler(req);
+            const validatedData = await validateRequest(req, schema, context?.params);
+            const result = await handler(req, context, validatedData);
 
             return apiResponse.success(
                 result.data ?? null,
