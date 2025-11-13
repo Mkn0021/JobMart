@@ -1,6 +1,14 @@
 import { z } from "zod";
 import { UserSchema } from "./user.type";
 
+export const RegisterSchema = {
+    body: z.object({
+        name: UserSchema.shape.name,
+        email: UserSchema.shape.email,
+        password: UserSchema.shape.password.unwrap(),
+    }),
+} as const;
+
 export const LoginSchema = {
     body: z.object({
         email: UserSchema.shape.email,
