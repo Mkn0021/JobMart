@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --shadow-black: [0px_4px_8px_0px_rgba(3,_7,_18,_0.06),_0px_2px_4px_0px_rgba(3,_7,_18,_0.06), 0px_0px_0px_1px_rgba(3,_7,_18,_0.08),_0px_1px_1px_2px_rgba(255,_255,_255,_0.40)_inset, 0px_-1px_5px_2px_rgba(255,_255,_255,_0.40)_inset];
 }
 
 .dark {
@@ -15,6 +16,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
   --font-display: var(--font-manrope);
+  --shadow-primary: var(--shadow-black);
 }
 
 @media (prefers-color-scheme: dark) {
